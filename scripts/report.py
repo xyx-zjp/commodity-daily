@@ -117,7 +117,7 @@ def build_html(products, date_str, report_url=''):
 <div class="header">
   <h1>📊 大宗商品价格日报</h1>
   <div class="subtitle">{date_str} 更新 · 数据来源：西本新干线/废金属资讯网/SMM/长江有色</div>
-  <div class="date-badge">🕘 每日9:00自动更新</div>{f' <div class="date-badge">🔗 <a href="{report_url}" style="color:#fff">在线报告</a></div>' if report_url else ''}
+  <div class="date-badge">🕑 每日14:00自动更新</div>{f' <div class="date-badge">🔗 <a href="{report_url}" style="color:#fff">在线报告</a></div>' if report_url else ''}
 </div>
 
 <div class="summary-cards">{cards_html}
@@ -163,7 +163,7 @@ def build_html(products, date_str, report_url=''):
 </div>
 
 <div class="footer">
-  <p>报告生成时间：{date_str} 09:00 · 数据仅供参考，不构成投资建议</p>
+  <p>报告生成时间：{date_str} 14:00 · 数据仅供参考，不构成投资建议</p>
   <p style="margin-top:4px">Powered by GitHub Actions · 自动化每日更新</p>
 </div>
 </div>
@@ -184,7 +184,7 @@ function switchTab(idx) {{
 
 function drawChart(idx) {{
   const p = products[idx];
-  const name = shortNames[idx] || p.name;
+  const name = p.name;
   const hist = historyData[name] || [];
   const dates = hist.map(h => h.date);
   const prices = hist.map(h => h.price);
