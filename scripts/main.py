@@ -19,7 +19,8 @@ from dingtalk import send_report
 # GitHub Pages URL（部署后自动设为 https://<username>.github.io/<repo>/）
 REPORT_URL = os.environ.get('REPORT_URL', '')
 
-async def main():
+async # auto-trigger workflow test
+def main():
     print('='*60)
     print('📊 大宗商品价格抓取开始')
     print(f'⏰ {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
