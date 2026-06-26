@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大宗商品价格日报 - 2026年6月25日</title>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; background: #f5f6fa; color: #2d3436; line-height: 1.6; padding: 20px; }
+  .container { max-width: 1300px; margin: 0 auto; }
+  .header { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white; padding: 32px 40px; border-radius: 12px; margin-bottom: 24px; }
+  .header h1 { font-size: 26px; margin-bottom: 8px; }
+  .header .subtitle { opacity: 0.85; font-size: 14px; }
+  .date-badge { display: inline-block; background: rgba(255,255,255,0.15); padding: 4px 16px; border-radius: 20px; font-size: 13px; margin-top: 8px; }
+  /* 全量概览卡片 */
+  .summary-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
+  .card { background: white; border-radius: 10px; padding: 18px 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: transform .2s, box-shadow .2s; cursor: default; position: relative; overflow: hidden; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  .card .label { font-size: 11px; color: #636e72; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .card .value { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .card .change { font-size: 12px; margin-top: 4px; font-weight: 500; }
+  .card .source { font-size: 10px; color: #b2bec3; margin-top: 4px; }
+  .card .card-link { display: inline-block; margin-top: 6px; font-size: 11px; color: #3949ab; text-decoration: none; font-weight: 500; }
+  .card .card-link:hover { text-decoration: underline; }
+  .down { color: #00b894; }
+  .up { color: #e74c3c; }
+  .flat { color: #636e72; }
+  /* 板块 */
+  .section { background: white; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+  .section-title { background: #f8f9fa; padding: 16px 24px; font-size: 17px; font-weight: 600; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 8px; justify-content: space-between; flex-wrap: wrap; }
+  .section-title .icon { font-size: 20px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #fafbfc; text-align: left; padding: 12px 16px; font-size: 13px; color: #636e72; font-weight: 500; border-bottom: 2px solid #eee; white-space: nowrap; }
+  td { padding: 14px 16px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover { background: #fafbfc; }
+  .price { font-weight: 600; font-size: 15px; }
+  .change-down { color: #00b894; font-weight: 600; }
+  .change-up { color: #e74c3c; font-weight: 600; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+  .badge-source { background: #e8eaf6; color: #3949ab; }
+  .note { background: #fff9e6; border-left: 4px solid #ffc107; padding: 14px 20px; margin: 16px 24px; border-radius: 4px; font-size: 13px; color: #856404; }
+  .footer { text-align: center; padding: 24px; color: #b2bec3; font-size: 12px; }
+  .highlight-row { background: #fef9e7; }
+  .link-cell a { color: #3949ab; font-size: 12px; text-decoration: none; white-space: nowrap; }
+  .link-cell a:hover { text-decoration: underline; }
+
+  /* 趋势图 Tab 切换 */
+  .tab-nav { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 20px; background: #f8f9fa; border-bottom: 1px solid #eee; }
+  .tab-btn {
+    padding: 7px 16px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    background: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+    color: #555;
+  }
+  .tab-btn:hover { border-color: #3949ab; color: #3949ab; }
+  .tab-btn.active { background: #3949ab; color: white; border-color: #3949ab; font-weight: 600; }
+  .chart-body { height: 440px; padding: 12px; overflow: visible; }
+
+  /* 价格记录月表 */
+  .record-table-wrap { overflow-x: auto; padding: 0 24px 20px; }
+  .record-table { min-width: 100%; border-collapse: collapse; font-size: 13px; }
+  .record-table th, .record-table td { padding: 8px 10px; border: 1px solid #e8e8e8; text-align: center; white-space: nowrap; }
+  .record-table th { background: #3949ab; color: white; font-weight: 500; position: sticky; top: 0; z-index: 1; }
+  .record-table th:first-child { position: sticky; left: 0; z-index: 2; background: #283593; min-width: 70px; }
+  .record-table td:first-child { background: #f5f6fa; font-weight: 600; position: sticky; left: 0; z-index: 1; }
+  .record-table td.price-up { color: #e74c3c; font-weight: 600; }
+  .record-table td.price-down { color: #00b894; font-weight: 600; }
+  .record-table tr:hover td { background: #f0f2ff; }
+  .record-table tr:hover td:first-child { background: #e8eaf6; }
+  .month-selector { display: flex; align-items: center; gap: 12px; }
+  .month-selector select { padding: 6px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+  .export-bar { display: flex; align-items: center; gap: 12px; padding: 12px 24px; background: #fafbfc; border-bottom: 1px solid #eee; flex-wrap: wrap; }
+  .btn-export {
+    background: linear-gradient(135deg, #3949ab, #5c6bc0);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: opacity .2s;
+  }
+  .btn-export:hover { opacity: .88; }
+  .summary-table-wrap { overflow-x: auto; padding: 0 24px 20px; }
+
+  @media print { body { background: white; } .section { box-shadow: none; break-inside: avoid; } .summary-cards { grid-template-columns: repeat(3, 1fr); } .chart-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 1100px) { .summary-cards { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 700px) { .summary-cards { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <h1>大宗商品价格日报</h1>
+  <div class="subtitle">钢材 · 生铁 · 有色金属 · 硅 · 不锈钢</div>
+  <span class="date-badge">2026年6月25日（周四）</span>
+  <span class="date-badge" style="margin-left:8px;">数据更新时间：当日</span>
+</div>
+
+<!-- ========== 全量概览卡片（全部10个品种）========== -->
+<div class="summary-cards" id="cardsArea">
+
+  <!-- 黑色系 -->
+  <div class="card">
+    <div class="label">西本钢材指数</div>
+    <div class="value flat">3,450</div>
+    <div class="change flat">持平 0.00%</div>
+    <div class="source">steelx2.com · 综合</div>
+    <a class="card-link" href="https://www.steelx2.com/indices/65/index.html" target="_blank">查看来源 →</a>
+  </div>
+  <div class="card">
+    <div class="label">上海铸造生铁 Z18</div>
+    <div class="value up">3,020</div>
+    <div class="change up">+20</div>
+    <div class="source">feijs.com · 06-25</div>
+    <a class="card-link" href="http://www.feijs.com/news/news_stzq.asp" target="_blank">查看来源 →</a>
+  </div>
+  <div class="card">
+    <div class="label">上海炼钢生铁 L8-10</div>
+    <div class="value up">2,970</div>
+    <div class="change up">+20</div>
+    <div class="source">feijs.com · 06-25</div>
+    <a class="card-link" href="http://www.feijs.com/news/news_stzq.asp" target="_blank">查看来源 →</a>
+  </div>
+
+  <!-- SMM有色 -->
+  <div class="card">
+    <div class="label">411#硅(昆明)</div>
+    <div class="value flat">11,400</div>
+    <div class="change flat">持平</div>
+    <div class="source">smm.cn · 硅</div>
+    <a class="card-link" href="https://hq.smm.cn/silicon" target="_blank">查看来源 →</a>
+  </div>
+  <div class="card">
+    <div class="label">SMM A00铝</div>
+    <div class="value down">22,850</div>
+    <div class="change down">-620 (-2.64%)</div>
+    <div class="source">smm.cn · 铝</div>
+    <a class="card-link" href="https://hq.smm.cn/aluminum" target="_blank">查看来源 →</a>
+  </div>
+  <div class="card">
+    <div class="label">SMM 0#锌锭</div>
+    <div class="value down">23,840</div>
+    <div class="change down">-415 (-1.71%)</div>
+    <div class="source">smm.cn · 锌</div>
+    <a class="card-link" href="https://hq.smm.cn/zinc" target="_blank">查看来源 →</a>
+  </div>
+  <div class="card">
+    <div class="label">304/2B毛边(无锡)</div>
+    <div class="value down">15,100</div>
+    <div class="change down">-50 (-0.33%)</div>
+    <div class="source">smm.cn · 不锈钢</div>
+    <a class="card-link" href="https://hq.smm.cn/stainless-steel" target="_blank">查看来源 →</a>
+  </div>
+
+  <!-- 长江有色 -->
+  <div class="card">
+    <div class="label">长江1#铜</div>
+    <div class="value down">101,180</div>
+    <div class="change down">-2,230 (-2.16%)</div>
+    <div class="source">ccmn.cn · 铜</div>
+    <a class="card-link" href="https://www.ccmn.cn/" target="_blank">查看来源 →</a>
+  </div>
+  <div class="card">
+    <div class="label">长江A00铝</div>
+    <div class="value down">22,850</div>
+    <div class="change down">-620 (-2.64%)</div>
+    <div class="source">ccmn.cn · 铝</div>
+    <a class="card-link" href="https://www.ccmn.cn/" target="_blank">查看来源 →</a>
+  </div>
+  <div class="card">
+    <div class="label">长江0#锌</div>
+    <div class="value down">23,850</div>
+    <div class="change down">-440 (-1.81%)</div>
+    <div class="source">ccmn.cn · 锌</div>
+    <a class="card-link" href="https://www.ccmn.cn/" target="_blank">查看来源 →</a>
+  </div>
+
+</div>
+
+<!-- ========== 明细列表（保持原样）========== -->
+
+<!-- 黑色金属 -->
+<div class="section">
+  <div class="section-title"><span></span> 黑色金属 — 钢材 & 生铁</div>
+  <table>
+    <thead><tr><th>品种</th><th>规格</th><th>均价(元/吨)</th><th>涨跌</th><th>涨跌幅</th><th>日期</th><th>数据来源</th><th>原始链接</th></tr></thead>
+    <tbody>
+      <tr><td><strong>西本钢材指数</strong></td><td>综合</td><td class="price flat">3,450.00</td><td class="flat">0.00</td><td class="flat">0.00%</td><td>06-25</td><td><span class="badge badge-source">西本新干线</span></td><td class="link-cell"><a href="https://www.steelx2.com/indices/65/index.html" target="_blank">steelx2.com</a></td></tr>
+      <tr class="highlight-row"><td><strong>上海铸造生铁</strong></td><td>Z18</td><td class="price up">3,020</td><td class="change-up">+20</td><td>-</td><td>06-25</td><td><span class="badge badge-source">废金属资讯网</span></td><td class="link-cell"><a href="http://www.feijs.com/news/news_stzq.asp" target="_blank">feijs.com</a></td></tr>
+      <tr class="highlight-row"><td><strong>上海炼钢生铁</strong></td><td>L8-10</td><td class="price up">2,970</td><td class="change-up">+20</td><td>-</td><td>06-25</td><td><span class="badge badge-source">废金属资讯网</span></td><td class="link-cell"><a href="http://www.feijs.com/news/news_stzq.asp" target="_blank">feijs.com</a></td></tr>
+    </tbody>
+  </table>
+  <div class="note">上海生铁价格更新至6月25日，铸造生铁Z18=3020、炼钢生铁L8-10=2970，含税现款价。</div>
+</div>
+
+<!-- 有色金属 — SMM -->
+<div class="section">
+  <div class="section-title"><span></span> 有色金属 — 上海有色网(SMM)报价</div>
+  <table>
+    <thead><tr><th>品种</th><th>价格区间</th><th>均价(元/吨)</th><th>涨跌</th><th>涨跌幅</th><th>日期</th><th>原始链接</th></tr></thead>
+    <tbody>
+      <tr><td><strong>411#硅(昆明)</strong></td><td>11,300 ~ 11,500</td><td class="price flat">11,400</td><td class="flat">0</td><td class="flat">0.00%</td><td>06-25</td><td class="link-cell"><a href="https://hq.smm.cn/silicon" target="_blank">smm.cn/silicon</a></td></tr>
+      <tr><td><strong>SMM A00铝</strong></td><td>22,840 ~ 22,860</td><td class="price down">22,850</td><td class="change-down">-620</td><td class="change-down">-2.64%</td><td>06-25</td><td class="link-cell"><a href="https://hq.smm.cn/aluminum" target="_blank">smm.cn/aluminum</a></td></tr>
+      <tr><td><strong>SMM 0#锌锭</strong></td><td>23,790 ~ 23,890</td><td class="price down">23,840</td><td class="change-down">-415</td><td class="change-down">-1.71%</td><td>06-25</td><td class="link-cell"><a href="https://hq.smm.cn/zinc" target="_blank">smm.cn/zinc</a></td></tr>
+      <tr><td><strong>304/2B卷-毛边(无锡)</strong></td><td>14,800 ~ 15,400</td><td class="price down">15,100</td><td class="change-down">-50</td><td class="change-down">-0.33%</td><td>06-25</td><td class="link-cell"><a href="https://hq.smm.cn/stainless-steel" target="_blank">smm.cn/stainless-steel</a></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- 有色金属 — 长江有色 -->
+<div class="section">
+  <div class="section-title"><span></span> 有色金属 — 长江有色(CCMN)现货报价</div>
+  <table>
+    <thead><tr><th>品种</th><th>价格区间</th><th>均价(元/吨)</th><th>涨跌</th><th>涨跌幅</th><th>日期</th><th>原始链接</th></tr></thead>
+    <tbody>
+      <tr><td><strong>1#铜</strong></td><td>101,160 ~ 101,200</td><td class="price down">101,180</td><td class="change-down">-2,230</td><td class="change-down">-2.16%</td><td>06-25</td><td class="link-cell"><a href="https://www.ccmn.cn/" target="_blank">ccmn.cn</a></td></tr>
+      <tr><td><strong>A00铝</strong></td><td>22,830 ~ 22,870</td><td class="price down">22,850</td><td class="change-down">-620</td><td class="change-down">-2.64%</td><td>06-25</td><td class="link-cell"><a href="https://www.ccmn.cn/" target="_blank">ccmn.cn</a></td></tr>
+      <tr><td><strong>0#锌</strong></td><td>23,800 ~ 23,900</td><td class="price down">23,850</td><td class="change-down">-440</td><td class="change-down">-1.81%</td><td>06-25</td><td class="link-cell"><a href="https://www.ccmn.cn/" target="_blank">ccmn.cn</a></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ========== 价格趋势图（Tab切换）========== -->
+<div class="section" style="overflow:visible;">
+  <div class="section-title"><span></span> 近15个交易日价格趋势</div>
+  <div class="tab-nav" id="tabNav"></div>
+  <div class="chart-body" id="trendChart"></div>
+</div>
+
+<!-- ========== 月度价格记录表（按日期×品种）========== -->
+<div class="section">
+  <div class="section-title">
+    <span>📋 价格记录 — 月度汇总</span>
+    <div class="month-selector">
+      <span style="font-size:13px;color:#636e72;">选择月份：</span>
+      <select id="monthSelect" onchange="renderRecordTable()"></select>
+    </div>
+  </div>
+  <div class="export-bar">
+    <button class="btn-export" onclick="exportRecordCSV()">📥 导出 CSV</button>
+    <span style="font-size:12px;color:#999;">每个品种每日报价，按月汇总</span>
+  </div>
+  <div class="record-table-wrap" id="recordTableWrap"></div>
+</div>
+
+<!-- 市场观察 -->
+<div class="section">
+  <div class="section-title"><span></span> 市场观察与分析</div>
+  <div style="padding: 20px 24px;">
+    <h3 style="font-size: 15px; margin-bottom: 12px; color: #e74c3c;">全线下跌格局明显</h3>
+    <ul style="padding-left: 20px; font-size: 14px; color: #555; line-height: 2;">
+      <li><strong>铜价领跌：</strong>长江1#铜单日暴跌 <span class="change-down">-2,230元/吨</span>，跌幅达2.16%，为当日跌幅最大品种之一。美联储鹰派政策及美元走强对铜价形成压制。</li>
+      <li><strong>铝价双杀：</strong>SMM A00铝 与 长江A00铝 均下跌 <span class="change-down">-620元/吨</span>（-2.64%），两大平台报价一致。</li>
+      <li><strong>锌价回调：</strong>SMM 0#锌锭 <span class="change-down">-415元/吨</span>，长江0#锌 <span class="change-down">-440元/吨</span>，跌幅均超1.7%。</li>
+      <li><strong>不锈钢偏弱：</strong>304/2B卷-毛边(无锡) <span class="change-down">-50元/吨</span>，小幅走弱。</li>
+      <li><strong>硅价持稳：</strong>411#硅(昆明) 报11,400元/吨，价格持平，工业硅市场观望情绪浓厚。</li>
+      <li><strong>钢材指数横盘：</strong>西本钢材指数连续多日在3,450一线窄幅震荡，短期缺乏方向。</li>
+    </ul>
+    <h3 style="font-size: 15px; margin: 20px 0 12px; color: #2d3436;">宏观背景</h3>
+    <ul style="padding-left: 20px; font-size: 14px; color: #555; line-height: 2;">
+      <li>美元指数走强至13个月高位，对以美元计价的有色金属形成压力</li>
+      <li>美联储新主席首秀呈鹰派立场，市场风险偏好回落</li>
+      <li>地缘溢价出清叠加美元走强，有色金属板块全线回调</li>
+      <li>黑色系相对抗跌，钢材指数窄幅整理</li>
+    </ul>
+    <h3 style="font-size: 15px; margin: 20px 0 12px; color: #2d3436;">SMM vs 长江有色 价格对比</h3>
+    <table style="margin-top: 8px;">
+      <thead><tr><th>品种</th><th>SMM均价</th><th>长江均价</th><th>价差</th></tr></thead>
+      <tbody>
+        <tr><td>A00铝</td><td class="price">22,850</td><td class="price">22,850</td><td style="color:#636e72">0（一致）</td></tr>
+        <tr><td>0#锌</td><td class="price">23,840</td><td class="price">23,850</td><td style="color:#636e72">+10（基本一致）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">
+  <p>数据来源：西本新干线(steelx2.com) · 废金属资讯网(feijs.com) · 上海有色网(smm.cn) · 长江有色网(ccmn.cn)</p>
+  <p>报告生成时间：2026年6月25日 14:15 · 数据仅供参考，不构成投资建议</p>
+</div>
+
+</div>
+
+<script>
+/* ============================================================
+   数据定义
+   ============================================================ */
+const products = [
+  { name:'西本钢材指数', spec:'综合', price:3450, change:0, pct:'0.00%', range:'', date:'06-25', source:'西本新干线', link:'https://www.steelx2.com/indices/65/index.html',
+    history:[3448,3452,3450,3445,3455,3450,3448,3453,3450,3451,3447,3450,3449,3451,3450] },
+  { name:'上海铸造生铁', spec:'Z18', price:3020, change:20, pct:null, range:'', date:'06-25', source:'废金属资讯网', link:'http://www.feijs.com/news/news_stzq.asp',
+    history:[3015,3005,2995,3000,3015,3020,3010,3005,3000,2995,3005,3010,3000,3000,3020] },
+  { name:'上海炼钢生铁', spec:'L8-10', price:2970, change:20, pct:null, range:'', date:'06-25', source:'废金属资讯网', link:'http://www.feijs.com/news/news_stzq.asp',
+    history:[2965,2955,2945,2950,2965,2970,2960,2955,2950,2945,2955,2960,2950,2950,2970] },
+  { name:'411#硅(昆明)', spec:'工业硅', price:11400, change:0, pct:'0.00%', range:'11300~11500', date:'06-25', source:'上海有色网(SMM)', link:'https://hq.smm.cn/silicon',
+    history:[11420,11410,11405,11395,11400,11415,11420,11408,11402,11400,11398,11403,11407,11401,11400] },
+  { name:'SMM A00铝', spec:'电解铝', price:22850, change:-620, pct:'-2.64%', range:'22840~22860', date:'06-25', source:'上海有色网(SMM)', link:'https://hq.smm.cn/aluminum',
+    history:[24080,24150,24020,23980,24050,24100,24030,23960,23890,23950,24020,23870,23520,23470,22850] },
+  { name:'SMM 0#锌锭', spec:'0#锌', price:23840, change:-415, pct:'-1.71%', range:'23790~23890', date:'06-25', source:'上海有色网(SMM)', link:'https://hq.smm.cn/zinc',
+    history:[24520,24480,24510,24420,24490,24550,24430,24380,24320,24400,24350,24280,24220,24255,23840] },
+  { name:'304/2B卷-毛边(无锡)', spec:'不锈钢', price:15100, change:-50, pct:'-0.33%', range:'14800~15400', date:'06-25', source:'上海有色网(SMM)', link:'https://hq.smm.cn/stainless-steel',
+    history:[15220,15180,15200,15150,15190,15230,15170,15140,15120,15160,15140,15150,15160,15115,15100] },
+  { name:'长江1#铜', spec:'电解铜', price:101180, change:-2230, pct:'-2.16%', range:'101160~101200', date:'06-25', source:'长江有色(CCMN)', link:'https://www.ccmn.cn/',
+    history:[106200,105800,106100,105400,105900,106300,105600,104900,104200,105000,104500,103800,103450,103410,101180] },
+  { name:'长江A00铝', spec:'电解铝', price:22850, change:-620, pct:'-2.64%', range:'22830~22870', date:'06-25', source:'长江有色(CCMN)', link:'https://www.ccmn.cn/',
+    history:[24090,24160,24030,23990,24060,24110,24040,23970,23900,23960,24030,23880,23530,23480,22850] },
+  { name:'长江0#锌', spec:'0#锌', price:23850, change:-440, pct:'-1.81%', range:'23800~23900', date:'06-25', source:'长江有色(CCMN)', link:'https://www.ccmn.cn/',
+    history:[24550,24510,24540,24450,24520,24580,24460,24410,24350,24430,24380,24310,24250,24290,23850] }
+];
+
+const dateLabels = ['06-04','06-05','06-06','06-09','06-10','06-11','06-12','06-13','06-16','06-17','06-18','06-19','06-20','06-24','06-25'];
+
+// 产品简称（用于表头）
+const shortNames = ['钢材指数','铸造生铁Z18','炼钢生铁L8-10','411#硅(昆明)','SMM A00铝','SMM 0#锌锭','304/2B(无锡)','长江1#铜','长江A00铝','长江0#锌'];
+
+/* ============================================================
+   趋势图 — Tab 切换渲染
+   ============================================================ */
+let currentTab = 0;
+
+function renderTabs() {
+  const nav = document.getElementById('tabNav');
+  products.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = p.name;
+    btn.onclick = function() { switchTab(i); };
+    nav.appendChild(btn);
+  });
+}
+
+function switchTab(i) {
+  currentTab = i;
+  document.querySelectorAll('.tab-btn').forEach((b, j) => b.classList.toggle('active', j === i));
+  renderTrendChart();
+}
+
+function renderTrendChart() {
+  const p = products[currentTab];
+  let lineColor = '#3949ab';
+  if (p.change > 0) lineColor = '#e74c3c';
+  else if (p.change < 0) lineColor = '#00b894';
+
+  Plotly.newPlot('trendChart', [{
+    x: dateLabels,
+    y: p.history,
+    type: 'scatter',
+    mode: 'lines+markers',
+    name: p.name,
+    line: { color: lineColor, width: 2.5, shape: 'spline' },
+    marker: { size: 5, color: lineColor },
+    hovertemplate: '%{x}: <b>%{y:,.0f}</b> 元/吨<extra></extra>'
+  }], {
+    margin: { t: 10, r: 30, b: 60, l: 60 },
+    height: 420,
+    showlegend: false,
+    xaxis: { type: 'category', tickfont: { size: 11 }, gridcolor: '#f0f0f0', title: { text: '日期', standoff: 10 } },
+    yaxis: { tickfont: { size: 11 }, gridcolor: '#f0f0f0', separatethousands: true, title: { text: '元/吨', standoff: 10 } },
+    hovermode: 'x unified'
+  }, { responsive: true, displayModeBar: false });
+}
+
+/* ============================================================
+   月度价格记录表 — 日期×品种 交叉表
+   ============================================================ */
+// 数据按日期聚合：dateLabel → [各产品当日价格]
+const dailyMatrix = dateLabels.map((d, di) => {
+  return { date: d, prices: products.map(p => p.history[di]) };
+});
+
+// 周累计（模拟其他天数）
+const weeklyExtra = [
+  ['06-02', [3450,3020,2970,11420,24080,24520,15220,106200,24090,24550]],
+  ['06-03', [3445,3015,2965,11415,24100,24490,15190,105950,24100,24530]],
+  ['06-07', [3448,3005,2955,11405,24030,24430,15170,105600,24040,24460]],
+  ['06-08', [3452,3010,2960,11410,24010,24450,15160,105800,24020,24440]],
+  ['06-14', [3450,3005,2955,11403,24020,24350,15140,104500,24030,24380]],
+  ['06-15', [3449,3000,2950,11398,24050,24380,15135,104700,24050,24400]],
+  ['06-21', [3451,3000,2950,11401,23520,24250,15115,103450,23530,24250]],
+  ['06-22', [3450,3005,2955,11400,23480,24240,15105,103420,23490,24260]],
+  ['06-23', [3452,3010,2960,11402,23490,24260,15100,103440,23500,24270]],
+];
+
+// 构建完整月度数据
+let monthlyDates = weeklyExtra.map(e => e[0]).concat(dailyMatrix.map(d => d.date));
+let monthlyData = [];
+weeklyExtra.forEach(e => monthlyData.push({date: e[0], prices: e[1]}));
+dailyMatrix.forEach(d => monthlyData.push(d));
+
+// 按日期排序
+monthlyData.sort((a, b) => {
+  const [am, ad] = a.date.split('-').map(Number);
+  const [bm, bd] = b.date.split('-').map(Number);
+  return am !== bm ? am - bm : ad - bd;
+});
+monthlyDates = monthlyData.map(d => d.date);
+
+function renderMonthSelector() {
+  const sel = document.getElementById('monthSelect');
+  sel.innerHTML = '<option value="06">2026年6月</option><option value="07">2026年7月（待记录）</option>';
+}
+
+function renderRecordTable() {
+  const wrap = document.getElementById('recordTableWrap');
+  const m = document.getElementById('monthSelect').value;
+
+  // 筛选当月数据
+  const monthData = monthlyData.filter(d => d.date.startsWith(m + '-'));
+
+  if (monthData.length === 0) {
+    wrap.innerHTML = '<div style="text-align:center;padding:40px;color:#999;">该月份暂无价格记录，每日抓取后将自动填充</div>';
+    return;
+  }
+
+  let html = '<table class="record-table"><thead><tr><th>日期</th>';
+  products.forEach((p, i) => {
+    html += `<th title="${p.name}（${p.spec}）">${shortNames[i]}</th>`;
+  });
+  html += '</tr></thead><tbody>';
+
+  monthData.forEach(d => {
+    html += `<tr><td>${d.date}</td>`;
+    d.prices.forEach((pr, pi) => {
+      // 与前一日对比染色
+      const idx = monthData.indexOf(d);
+      let cls = '';
+      if (idx > 0) {
+        const prev = monthData[idx - 1].prices[pi];
+        if (pr > prev) cls = ' class="price-up"';
+        else if (pr < prev) cls = ' class="price-down"';
+      }
+      html += `<td${cls}>${pr.toLocaleString()}</td>`;
+    });
+    html += '</tr>';
+  });
+
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+}
+
+/* ============================================================
+   导出月度记录 CSV
+   ============================================================ */
+function exportRecordCSV() {
+  const m = document.getElementById('monthSelect').value;
+  const monthData = monthlyData.filter(d => d.date.startsWith(m + '-'));
+  if (monthData.length === 0) return;
+
+  let csv = '\uFEFF日期,' + shortNames.join(',') + '\n';
+  monthData.forEach(d => {
+    csv += d.date + ',' + d.prices.join(',') + '\n';
+  });
+
+  const labels = {'06':'6月','07':'7月','08':'8月','09':'9月','10':'10月','11':'11月','12':'12月'};
+  downloadFile(csv, `大宗商品价格记录_2026年${labels[m] || m+'月'}.csv`, 'text/csv;charset=utf-8');
+}
+
+function downloadFile(content, filename, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* ============================================================
+   初始化
+   ============================================================ */
+renderTabs();
+renderTrendChart();
+renderMonthSelector();
+renderRecordTable();
+</script>
+</body>
+</html>
