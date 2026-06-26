@@ -1,0 +1,51 @@
+name: 大宗商品每日价格日报
+
+on:
+  schedule:
+    # 每天北京时间 14:00 (UTC+8 = UTC 6:00)
+    - cron: '0 6 * * *'
+  workflow_dispatch:  # 允许手动触发
+  push:
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/**'
+      - 'requirements.txt'
+
+jobs:
+  fetch-and-report:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write  # 需要写入权限用于提交历史数据和部署
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+      
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      
+      - name: 安装依赖
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps chromium
+      
+      - name: 抓取数据并生成报告
+        env:
+          SMM_USERNAME: ${{ secrets.SMM_USERNAME }}
+          SMM_PASSWORD: ${{ secrets.SMM_PASSWORD }}
+          DINGTALK_WEBHOOK: ${{ secrets.DINGTALK_WEBHOOK }}
+          DINGTALK_SECRET: ${{ secrets.DINGTALK_SECRET }}
+          REPORT_URL: ${{ vars.REPORT_URL || 'https://XYX-ZJP.github.io/commodity-daily/' }}
+        run: python scripts/main.py
+      
+      - name: 提交历史数据和报告
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: '📊 更新价格日报 [auto]'
+          file_pattern: 'data/ docs/'
+          commit_user_name: 'GitHub Actions'
+          commit_user_email: 'actions@github.com'
