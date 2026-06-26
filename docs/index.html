@@ -66,25 +66,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif;b
 
 <div class="summary-cards">
   <div class="card">
-    <div class="label">西本钢材指数 </div>
-    <div class="value flat">300</div>
-    <div class="change flat">持平</div>
+    <div class="label">西本钢材指数 钢材指数</div>
+    <div class="value down">3,440</div>
+    <div class="change down">-10</div>
     <div class="source">西本新干线 · 2026-06-26</div>
     <a class="card-link" href="https://www.steelx2.com/indices/65/index.html" target="_blank">查看来源 →</a>
-  </div>
-  <div class="card">
-    <div class="label">长江1#铜 电解铜</div>
-    <div class="value flat">1,020</div>
-    <div class="change flat">持平</div>
-    <div class="source">长江有色(CCMN) · 2026-06-26</div>
-    <a class="card-link" href="https://www.ccmn.cn/" target="_blank">查看来源 →</a>
   </div>
 </div>
 
 <div class="section">
   <div class="section-title"><span></span> 近15个交易日价格趋势</div>
   <div class="tab-nav"><button class="tab-btn active" onclick="switchTab(0)">钢材指数</button>
-<button class="tab-btn" onclick="switchTab(1)">铸造生铁</button>
 </div>
   <div class="chart-body" id="trendChart"></div>
 </div>
@@ -110,31 +102,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif;b
       <thead><tr><th>品种</th><th>规格</th><th>均价(元/吨)</th><th>涨跌</th><th>价格区间</th><th>日期</th><th>数据来源</th><th>原始链接</th></tr></thead>
       <tbody><tr>
     <td><strong>西本钢材指数</strong></td>
-    <td>-</td>
-    <td class="price">300</td>
-    <td class="">0</td>
+    <td>钢材指数</td>
+    <td class="price">3,440</td>
+    <td class="down">-10</td>
     <td>-</td>
     <td>2026-06-26</td>
     <td><span class="badge-source">西本新干线</span></td>
     <td class="link-cell"><a href="https://www.steelx2.com/indices/65/index.html" target="_blank">查看</a></td>
-  </tr></tbody>
-    </table>
-  </div>
-</div>
-<div class="section">
-  <div class="section-title"><span></span> 长江有色(CCMN)</div>
-  <div class="detail-table-wrap">
-    <table class="detail-table">
-      <thead><tr><th>品种</th><th>规格</th><th>均价(元/吨)</th><th>涨跌</th><th>价格区间</th><th>日期</th><th>数据来源</th><th>原始链接</th></tr></thead>
-      <tbody><tr>
-    <td><strong>长江1#铜</strong></td>
-    <td>电解铜</td>
-    <td class="price">1,020</td>
-    <td class="">-</td>
-    <td>1020~1020</td>
-    <td>2026-06-26</td>
-    <td><span class="badge-source">长江有色(CCMN)</span></td>
-    <td class="link-cell"><a href="https://www.ccmn.cn/" target="_blank">查看</a></td>
   </tr></tbody>
     </table>
   </div>
@@ -165,7 +139,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif;b
 </div>
 
 <script>
-const products = [{"name": "西本钢材指数", "price": 300.0, "change": 0, "date": "2026-06-26", "source": "西本新干线", "link": "https://www.steelx2.com/indices/65/index.html"}, {"name": "长江1#铜", "spec": "电解铜", "price": 1020.0, "change": null, "date": "2026-06-26", "source": "长江有色(CCMN)", "link": "https://www.ccmn.cn/", "range": "1020~1020"}];
+const products = [{"name": "西本钢材指数", "spec": "钢材指数", "price": 3440.0, "change": -10, "date": "2026-06-26", "source": "西本新干线", "link": "https://www.steelx2.com/indices/65/index.html"}];
 const dateLabels = [];
 const historyData = {};
 const shortNames = ["钢材指数", "铸造生铁", "炼钢生铁", "411#硅", "SMM A00铝", "SMM 0#锌锭", "304/2B毛边", "长江1#铜", "长江A00铝", "长江0#锌"];
