@@ -19,8 +19,7 @@ from dingtalk import send_report
 # GitHub Pages URL（部署后自动设为 https://<username>.github.io/<repo>/）
 REPORT_URL = os.environ.get('REPORT_URL', '')
 
-async # auto-trigger workflow test
-def main():
+async def main():
     print('='*60)
     print('📊 大宗商品价格抓取开始')
     print(f'⏰ {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
@@ -96,4 +95,3 @@ def main():
 
 if __name__ == '__main__':
     asyncio.run(main())
-# Triggered at 2026-06-26 10:16:56
