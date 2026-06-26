@@ -59,7 +59,7 @@ def send_report(products, report_url, date_str):
 
 📈 **[查看完整报告（趋势图+明细）]({report_url})**
 
-> ⏰ 每日9:00自动更新 | 数据：西本/废金属/SMM/长江有色'''
+> ⏰ 每日14:00自动更新 | 数据：西本/废金属/SMM/长江有色'''
         
         data = json.dumps({
             'msgtype': 'markdown',
