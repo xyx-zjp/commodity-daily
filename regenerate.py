@@ -42,7 +42,7 @@ for name, info in hist['products'].items():
             p['range'] = str(int(latest['price']))
         products.append(p)
 
-order = ['西本钢材指数','铸造生铁Z18','炼钢生铁L8-10','441#硅(华东)','SMM A00铝','SMM 0#锌锭','304/2B毛边(无锡)','长江1#铜','长江A00铝','长江0#锌']
+order = ['西本钢材指数','铸造生铁Z18','炼钢生铁L8-10','441#硅(昆明)','SMM A00铝','SMM 0#锌锭','304/2B毛边(无锡)','长江1#铜','长江A00铝','长江0#锌']
 products.sort(key=lambda x: order.index(x['name']) if x['name'] in order else 99)
 
 date_str = f"{hist['last_updated'][:4]}年{hist['last_updated'][5:7]}月{hist['last_updated'][8:10]}日"

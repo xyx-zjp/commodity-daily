@@ -65,7 +65,7 @@ async def main():
 
     print('[4/4] ChangJiang YouSe (CCMN)...')
     try:
-        ccmn = fetch_ccmn()
+        ccmn = await asyncio.to_thread(fetch_ccmn)
         if ccmn:
             for c in ccmn:
                 c['date'] = today
