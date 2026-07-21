@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-07-20",
+  "last_updated": "2026-07-21",
   "products": {
     "西本钢材指数": {
       "history": [
@@ -117,6 +117,11 @@
           "date": "2026-07-20",
           "price": 3410.0,
           "change": 0
+        },
+        {
+          "date": "2026-07-21",
+          "price": 3390.0,
+          "change": -20
         }
       ]
     },
@@ -206,6 +211,11 @@
           "date": "2026-07-20",
           "price": 3040,
           "change": null
+        },
+        {
+          "date": "2026-07-21",
+          "price": 3040,
+          "change": null
         }
       ]
     },
@@ -293,6 +303,11 @@
         },
         {
           "date": "2026-07-20",
+          "price": 2990,
+          "change": null
+        },
+        {
+          "date": "2026-07-21",
           "price": 2990,
           "change": null
         }
@@ -414,6 +429,11 @@
           "date": "2026-07-20",
           "price": 9500.0,
           "change": null
+        },
+        {
+          "date": "2026-07-21",
+          "price": 9450.0,
+          "change": null
         }
       ]
     },
@@ -532,6 +552,11 @@
         {
           "date": "2026-07-20",
           "price": 23190.0,
+          "change": null
+        },
+        {
+          "date": "2026-07-21",
+          "price": 23080.0,
           "change": null
         }
       ]
@@ -652,6 +677,11 @@
           "date": "2026-07-20",
           "price": 24420.0,
           "change": null
+        },
+        {
+          "date": "2026-07-21",
+          "price": 24325.0,
+          "change": null
         }
       ]
     },
@@ -769,6 +799,11 @@
         },
         {
           "date": "2026-07-20",
+          "price": 15000.0,
+          "change": null
+        },
+        {
+          "date": "2026-07-21",
           "price": 15000.0,
           "change": null
         }
