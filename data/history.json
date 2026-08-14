@@ -1,5 +1,5 @@
 {
-  "last_updated": "2026-08-13",
+  "last_updated": "2026-08-14",
   "products": {
     "西本钢材指数": {
       "history": [
@@ -212,6 +212,11 @@
           "date": "2026-08-13",
           "price": 3300.0,
           "change": 0
+        },
+        {
+          "date": "2026-08-14",
+          "price": 3310.0,
+          "change": 10
         }
       ]
     },
@@ -391,6 +396,11 @@
           "date": "2026-08-13",
           "price": 2980,
           "change": null
+        },
+        {
+          "date": "2026-08-14",
+          "price": 2980,
+          "change": null
         }
       ]
     },
@@ -568,6 +578,11 @@
         },
         {
           "date": "2026-08-13",
+          "price": 2930,
+          "change": null
+        },
+        {
+          "date": "2026-08-14",
           "price": 2930,
           "change": null
         }
